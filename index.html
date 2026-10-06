@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="description" content="Interactive explainer: from chatbots to Physical AI — VLMs, VLAs, world models, and who is building what.">
+<title>From Chatbots to Physical AI</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%230b1020'/%3E%3Ctext x='256' y='355' font-size='300' text-anchor='middle' fill='%237dd3fc' font-family='serif'%3E%CF%80%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0b1020;--panel:#131a2e;--panel2:#1a2340;--line:#27325a;--text:#e8ecf8;--mute:#98a2c3;
+  --vlm:#a78bfa;--vla:#38bdf8;--wm:#34d399;--omni:#fbbf24;--acc:#7dd3fc;--warn:#fb923c;
+  --r:14px;
+}
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){--bg:#f4f6fc;--panel:#fff;--panel2:#eef1fb;--line:#d5dbf0;--text:#141a33;--mute:#5a6586;--acc:#0369a1}
+}
+:root[data-theme="light"]{--bg:#f4f6fc;--panel:#fff;--panel2:#eef1fb;--line:#d5dbf0;--text:#141a33;--mute:#5a6586;--acc:#0369a1}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{padding-bottom:env(safe-area-inset-bottom)}
+header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:calc(8px + env(safe-area-inset-top)) 16px 0}
+.top{display:flex;gap:10px;align-items:center}
+.logo{font:700 18px/1 Georgia,serif;color:var(--acc);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+h1{font-size:15px;margin:0;line-height:1.2;flex:1}
+h1 small{display:block;color:var(--mute);font-weight:400;font-size:12px}
+.search{flex:1.2;min-width:0}
+input[type=search],input[type=text]{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 12px;font:inherit;font-size:15px}
+input:focus{outline:2px solid var(--acc);outline-offset:1px}
+nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:8px -16px 0;padding:0 16px}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:none;background:none;border:0;color:var(--mute);font:inherit;font-size:14px;padding:10px 12px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav button[aria-selected=true]{color:var(--text);border-color:var(--acc)}
+main{max-width:920px;margin:0 auto;padding:16px 16px 40px}
+h2{font-size:22px;margin:4px 0 6px}
+p.lead{color:var(--mute);margin:0 0 16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:99px;border:1px solid currentColor;margin-right:4px}
+.t-VLM{color:var(--vlm)}.t-VLA{color:var(--vla)}.t-WM{color:var(--wm)}.t-Omni{color:var(--omni)}
+button.btn,.chip{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:99px;padding:7px 13px;font:inherit;font-size:14px;cursor:pointer}
+button.btn:hover,.chip:hover{border-color:var(--acc)}
+.chip[aria-pressed=true]{background:var(--acc);color:#04121f;border-color:var(--acc);font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.mute{color:var(--mute)}.small{font-size:13px}
+a{color:var(--acc)}
+/* ladder */
+.ladder{display:flex;flex-direction:column;gap:8px}
+.step{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;color:var(--text);font:inherit;cursor:pointer}
+.step[aria-expanded=true]{border-color:var(--acc);background:var(--panel2)}
+.step .n{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--panel2);border:1px solid var(--line);font-weight:700}
+.step b{display:block}
+.step .more{display:none;margin-top:8px}
+.step[aria-expanded=true] .more{display:block}
+.io{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin:8px 0}
+.io div.b{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px}
+.io .arr{color:var(--acc);font-size:18px}
+/* model card */
+.mc h3{margin:0 0 2px;font-size:18px}
+.mc .org{color:var(--mute);font-size:13px;margin-bottom:8px}
+.flow{display:grid;gap:6px;margin:10px 0;font-size:13.5px}
+.flow div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+.flow b{color:var(--acc);font-size:11px;text-transform:uppercase;letter-spacing:.06em;display:block}
+.src{font-size:12.5px}
+.badge{font-size:11px;color:var(--mute);border:1px dashed var(--line);border-radius:6px;padding:1px 6px;margin-left:4px;white-space:nowrap}
+.badge.ok{color:var(--wm);border-color:var(--wm)}
+/* compare */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{background:var(--panel2);position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+td:first-child{color:var(--mute);width:110px;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.hl{background:color-mix(in srgb,var(--acc) 10%,transparent)}
+/* demo */
+.stage{display:flex;gap:6px;overflow-x:auto;margin:10px 0}
+.pill{flex:1;min-width:92px;text-align:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:8px 6px;font-size:12.5px;opacity:.5;transition:.25s}
+.pill .e{font-size:22px;display:block}
+.pill.on{opacity:1;border-color:var(--acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 35%,transparent)}
+.pill.done{opacity:.95}
+.pill.skip{opacity:.25;text-decoration:line-through}
+.caption{min-height:3.2em;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px}
+svg.scene{width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:var(--r)}
+.obj{transition:transform .9s ease-in-out}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.seg button{background:none;border:0;color:var(--mute);padding:7px 13px;font:inherit;font-size:14px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--acc);color:#04121f;font-weight:600}
+/* timeline */
+.tl{position:relative;margin-left:10px;padding-left:20px;border-left:2px solid var(--line)}
+.tl .it{position:relative;margin-bottom:14px}
+.tl .it::before{content:"";position:absolute;left:-27px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--acc);border:2px solid var(--bg)}
+.tl .d{font-size:12px;color:var(--mute)}
+footer{border-top:1px solid var(--line);padding:18px 16px 28px;text-align:center;color:var(--mute);font-size:12.5px}
+.hidden{display:none!important}
+.banner{background:color-mix(in srgb,var(--warn) 14%,transparent);border:1px solid var(--warn);border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:12px}
+@media (prefers-reduced-motion:reduce){.obj,.pill{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="logo" aria-hidden="true">π</div>
+    <h1>From Chatbots to Physical AI<small>Interactive explainer · works offline</small></h1>
+    <div class="search"><input id="gsearch" type="search" placeholder="Search models, companies…" aria-label="Search everything"></div>
+  </div>
+  <nav id="nav" role="tablist" aria-label="Sections"></nav>
+</header>
+
+<main id="view" tabindex="-1"></main>
+
+<footer>
+  <div>Designed &amp; Architected by Krishnamurthy Kandregula · Made by Claude</div>
+  <div style="margin-top:6px">Facts checked against public sources in October 2026. This field moves fast — verify before you rely on a detail. <button class="btn" id="themeBtn" style="margin-left:6px;padding:3px 10px;font-size:12px">Toggle theme</button> <button class="btn hidden" id="installBtn" style="padding:3px 10px;font-size:12px">Install app</button></div>
+</footer>
+
+<script>
+"use strict";
+/* ============ DATA ============ */
+var TAGS = {VLM:"Vision-Language Model",VLA:"Vision-Language-Action",WM:"World Model",Omni:"Omni / unified"};
+
+var LADDER = [
+  {k:"LLM",e:"💬",t:"Large Language Model",i:"Text",o:"Text",d:"Predicts the next token of text. Knows a lot about the world from words alone, but has never seen or touched anything."},
+  {k:"MM",e:"🖼️",t:"Multimodal model",i:"Text + images (audio, video)",o:"Text",d:"Adds other senses on the input side. It can describe a photo, but the answer is still words."},
+  {k:"VLM",e:"👁️",t:"Vision-Language Model",i:"Images/video + a question",o:"Text, points, boxes",d:"Grounds language in what the camera sees: which object, where, how many. In robotics this is often the 'reasoning brain' (e.g. an embodied-reasoning model that outputs plans or pointing targets)."},
+  {k:"VLA",e:"🦾",t:"Vision-Language-Action model",i:"Camera frames + instruction (+ joint state, sometimes touch)",o:"Robot actions (motor commands)",d:"A VLM that has been taught to output actions instead of only words. 'Pick up the red cup' goes in; a stream of arm movements comes out."},
+  {k:"WM",e:"🌎",t:"World model",i:"Current state/frames + a possible action",o:"Predicted future frames or states",d:"Learns how the world changes. Used to imagine 'what happens if…' for planning, to generate training data, and to test robots in simulation before real hardware is risked."},
+  {k:"PAI",e:"🤖",t:"Physical AI",i:"Sensors, instruction, memory, feedback",o:"Actions in the real world — and learning from the result",d:"Not a single model type but the whole loop: perceive → reason → predict → act → learn, running on a body (robot, car, drone). VLAs and world models are components of it."}
+];
+
+/* src: [title,url,verified?]  verified = fetched in a search for this build (Oct 2026) */
+var MODELS = [
+ {id:"rho-alpha",name:"Rho-alpha (ρα)",org:"Microsoft Research",date:"Jan 2026",tags:["VLA"],
+  inp:"Camera views + natural-language command + touch (tactile) signals",
+  und:"Reasons with a Phi-family vision-language backbone, then fuses touch with vision so it can react while the hand is already moving.",
+  out:"Control signals for two-armed (bimanual) manipulation",
+  note:"Microsoft calls it “VLA+”: it adds tactile sensing and can keep learning from human corrections during deployment. Early-access research model; Foundry availability was announced as ‘later’.",
+  src:[["Microsoft Research / Azure Labs — Rho-alpha","https://labs.ai.azure.com/?p=1022",1],["BDTechTalks — Inside Rho-alpha","https://bdtechtalks.com/2026/01/23/microsofts-rho-alpha-vla-robotic-model/",1]]},
+ {id:"cosmos",name:"NVIDIA Cosmos (Cosmos 3)",org:"NVIDIA",date:"Cosmos 3: Jun 2026",tags:["WM","VLM","Omni"],
+  inp:"Text, images, video, sound and action trajectories",
+  und:"One mixture-of-transformers system that can act as a reasoning VLM, a world simulator, or the backbone of a world-action model.",
+  out:"Text reasoning, generated future video/world states, and predicted actions",
+  note:"Open model family. Earlier generations (Cosmos-Predict2.5, Cosmos Reason 2) were separate world-generation and reasoning models; Cosmos 3 merges them. NVIDIA reports sizes named Super and Nano, with an Edge version announced as upcoming.",
+  src:[["NVIDIA press release — Cosmos 3 launch","https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Launches-Cosmos-3-the-Open-Frontier-Foundation-Model-for-Physical-AI/default.aspx",1],["arXiv 2511.00062 — Cosmos-Predict2.5 / Transfer2.5","https://arxiv.org/abs/2511.00062",1]]},
+ {id:"gemini-robotics",name:"Gemini Robotics 2 (+ ER 2)",org:"Google DeepMind",date:"30 Jul 2026",tags:["VLA","VLM"],
+  inp:"Camera images + spoken/written instruction",
+  und:"A three-part stack: a VLA for action, an embodied-reasoning model (ER 2) for planning and long procedures, and an on-device VLA for local execution.",
+  out:"Whole-body humanoid motor commands (walking, crouching, two-handed manipulation); ER 2 outputs plans and tool calls",
+  note:"Reported as early-access for robot makers; Gemini Robotics ER 2 is reported to be available as a preview through the Gemini API. The original Gemini Robotics (2025) mainly controlled upper-body/arm robots.",
+  src:[["Gigazine — Gemini Robotics 2 summary (links DeepMind posts)","https://gigazine.net/gsc_news/en/20260731-google-deepmind-gemini-robotics-2",1],["Wikipedia — Gemini Robotics","https://en.wikipedia.org/wiki/Gemini_Robotics",1]]},
+ {id:"rt2",name:"RT-2",org:"Google DeepMind",date:"Jul 2023",tags:["VLA"],
+  inp:"Robot camera image + text instruction",
+  und:"A web-scale vision-language model co-trained on internet data and robot demonstrations, so web knowledge transfers to robot behavior.",
+  out:"Robot actions written as text-like tokens",
+  note:"The paper that popularised the ‘VLA’ name and the idea of treating actions as just another language.",
+  src:[["arXiv 2307.15818 — RT-2","https://arxiv.org/abs/2307.15818",0]]},
+ {id:"openvla",name:"OpenVLA",org:"Stanford, UC Berkeley, TRI & collaborators",date:"Jun 2024",tags:["VLA"],
+  inp:"Camera image + language instruction",
+  und:"A 7-billion-parameter open model: a Llama 2 language backbone with DINOv2 + SigLIP vision encoders, trained on the Open X-Embodiment dataset.",
+  out:"Discretised robot actions",
+  note:"The open-weights baseline most researchers fine-tune. Details here are from the paper; not re-fetched for this build.",
+  src:[["arXiv 2406.09246 — OpenVLA","https://arxiv.org/abs/2406.09246",0]]},
+ {id:"pi0",name:"π0 → π0.7",org:"Physical Intelligence",date:"π0: Oct 2024 · π0.7: Apr 2026",tags:["VLA"],
+  inp:"Multiple camera views + language + robot joint state",
+  und:"A vision-language model backbone plus a separate ‘action expert’ trained with flow matching, so actions come out as smooth continuous trajectories.",
+  out:"Continuous action chunks, up to ~50 per second (π0)",
+  note:"π0 weights and code were open-sourced in Feb 2025. Later steps: π0.5 (Apr 2025, open-world generalisation), π*0.6 (Nov 2025, learns from its own experience with RL), π0.7 (Apr 2026, ‘steerable’ with emergent capabilities).",
+  src:[["Physical Intelligence — research page","https://pi.website",1],["AI Wiki — π0.5","https://aiwiki.ai/wiki/pi_0_5/raw",1],["ActuIA — π*0.6","https://www.actuia.com/acteur/physical-intelligence/",1]]},
+ {id:"genie3",name:"Genie 3",org:"Google DeepMind",date:"Aug 2025",tags:["WM"],
+  inp:"A text or image prompt, then the user's/agent's actions each frame",
+  und:"Generates the world frame by frame while remembering what it already showed, so the scene stays consistent.",
+  out:"Interactive 3D-like worlds at 720p / 24 fps for a few minutes; ‘promptable world events’ (e.g. change the weather)",
+  note:"Limited research preview, not a robot controller. DeepMind used it to generate worlds for its SIMA agent and sees it as a route to training embodied agents.",
+  src:[["TechCrunch — DeepMind reveals Genie 3","https://techcrunch.com/2025/08/05/deepmind-reveals-genie-3-a-world-model-that-could-be-the-key-to-reaching-agi",1],["BDTechTalks — Promise and limits of Genie 3","https://bdtechtalks.com/2025/08/07/deepmind-genie-3/",1]]}
+];
+
+var COMPANIES = [
+ {n:"Google DeepMind",f:"Gemini Robotics (VLA + embodied reasoning), Genie world models",m:["gemini-robotics","rt2","genie3"]},
+ {n:"NVIDIA",f:"Cosmos open world foundation models; Isaac Sim / Omniverse simulation",m:["cosmos"]},
+ {n:"Microsoft Research",f:"Rho-alpha, a Phi-derived VLA+ with touch; uses NVIDIA Isaac Sim data",m:["rho-alpha"]},
+ {n:"Physical Intelligence",f:"π0 family — generalist robot foundation models",m:["pi0"]},
+ {n:"Stanford / Berkeley / TRI",f:"OpenVLA — open-weights VLA research",m:["openvla"]},
+ {n:"Figure",f:"Humanoid robots with its own Helix VLA (background knowledge, not re-verified)",m:[]},
+ {n:"Tesla",f:"Optimus humanoid (background knowledge, not re-verified)",m:[]},
+ {n:"OpenAI",f:"Multimodal models; reported early investor in Physical Intelligence",m:[]}
+];
+
+var EXAMPLES = [
+ {e:"🧍",t:"Humanoid robots",d:"General-purpose bodies built for human spaces. They need whole-body control plus reasoning about open-ended tasks.",hard:"Balance, dexterity and safety around people.",ex:"Gemini Robotics 2 targets full humanoid control."},
+ {e:"🏭",t:"Factory robots",d:"Arms that assemble, inspect and move parts. Foundation models promise less per-task programming.",hard:"Reliability numbers must be extremely high.",ex:"Cosmos developers named include Doosan Robotics, LG, Samsung."},
+ {e:"🚗",t:"Autonomous vehicles",d:"Perception, prediction and planning on the road. World models can generate rare scenarios for testing.",hard:"Rare, dangerous edge cases.",ex:"Li Auto is listed as building on Cosmos."},
+ {e:"🛸",t:"Drones",d:"Flying robots for inspection, mapping and delivery. Language-guided missions are a research direction.",hard:"Weight and power limit on-board compute.",ex:"Edge-sized models (e.g. an announced Cosmos Edge) aim at this class."},
+ {e:"📦",t:"Warehouse automation",d:"Picking, sorting and moving goods. Touch and recovery from mistakes matter as much as vision.",hard:"Huge variety of objects and packaging.",ex:"π*0.6 reports learning from its own experience to improve throughput."},
+ {e:"🏠",t:"Household robots",d:"Tidying, laundry, kitchens — new homes the robot has never seen.",hard:"Every home is different, and failure is visible.",ex:"π0.5 demoed cleaning kitchens and bedrooms in unseen homes."}
+];
+
+var TIMELINE = [
+ ["Jul 2023","RT-2 shows web-trained vision-language models can drive a robot.","rt2"],
+ ["Jun 2024","OpenVLA releases an open 7B VLA.","openvla"],
+ ["Oct 2024","Physical Intelligence announces π0, a flow-matching generalist policy.","pi0"],
+ ["Mar 2025","Google DeepMind introduces Gemini Robotics and ER (reasoning).","gemini-robotics"],
+ ["Apr 2025","π0.5 targets open-world generalisation in unseen homes.","pi0"],
+ ["Aug 2025","Genie 3: real-time interactive world model (research preview).","genie3"],
+ ["Nov 2025","π*0.6 learns from its own experience with reinforcement learning.","pi0"],
+ ["Jan 2026","Microsoft unveils Rho-alpha (VLA+ with touch); NVIDIA adds Cosmos Reason 2 at CES.","rho-alpha"],
+ ["Apr 2026","π0.7 ‘steerable’ model; Gemini Robotics-ER 1.6 reaches developers.","pi0"],
+ ["Jun 2026","NVIDIA launches Cosmos 3, an open omnimodel merging reasoning, world simulation and action.","cosmos"],
+ ["30 Jul 2026","Gemini Robotics 2: whole-body humanoid control, ER 2, On-Device 2.","gemini-robotics"]
+];
+
+var TERMS = {
+ cols:["VLA","World model","Physical AI"],
+ rows:[
+  ["Core question","“What should the robot do next?”","“What will happen if…?”","“How does a machine act safely and usefully in the real world?”"],
+  ["Takes in","Camera frames, instruction, robot state","Current frames/state + a candidate action","All of it, continuously, from real sensors"],
+  ["Puts out","Actions","Predicted future frames or states","Actions, plus logs and feedback to learn from"],
+  ["Used for","Controlling a robot","Planning, simulation, synthetic training data","A complete deployed system"],
+  ["Examples","RT-2, OpenVLA, π0, Gemini Robotics 2","Genie 3, Cosmos world models","A humanoid or car running several models"],
+  ["Weak spot","Can act without ‘imagining’ consequences","Physics is learned, so can be approximate","Hardware, safety and data are bottlenecks"]
+ ],
+ note:"These categories are blurring: Cosmos 3 is described as one system that can reason, simulate and predict actions."
+};
+
+var CONCEPT_NOTE="Conceptual framing — the author's explainer, not a claim from one source.";
+
+/* ============ HELPERS ============ */
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function tagsHtml(a){return a.map(function(t){return '<span class="tag t-'+t+'" title="'+esc(TAGS[t])+'">'+t+'</span>'}).join("")}
+function srcHtml(list){return list.map(function(s){return '<a href="'+esc(s[1])+'" target="_blank" rel="noopener">'+esc(s[0])+'</a><span class="badge '+(s[2]?'ok':'')+'">'+(s[2]?'checked Oct 2026':'paper · not re-fetched')+'</span>'}).join("<br>")}
+function modelById(id){return MODELS.filter(function(m){return m.id===id})[0]}
+function tryStore(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+
+/* ============ STATE ============ */
+var S={view:"learn",tag:"",q:"",cmp:[],cmpMode:false,whoQ:"",demoMode:"wm",demoTimer:[]};
+var VIEWS=[["learn","Evolution"],["models","Models"],["demo","Watch it think"],["terms","VLA vs WM"],["world","Real world"],["who","Who builds what"],["time","Timeline"],["sources","Sources"],["search","Search"]];
+
+/* ============ VIEWS ============ */
+function vLearn(){
+  var h='<h2>From chatbots to Physical AI</h2><p class="lead">Six steps. Tap each one to see what goes in and what comes out.</p><div class="ladder">';
+  LADDER.forEach(function(s,i){
+    h+='<button class="step" aria-expanded="false" data-i="'+i+'"><span class="n">'+(i+1)+'</span><span style="flex:1"><b>'+s.e+' '+esc(s.t)+'</b><span class="mute small">'+esc(s.i)+' → '+esc(s.o)+'</span>'+
+    '<span class="more"><div class="io"><div class="b"><b>In</b><br>'+esc(s.i)+'</div><div class="arr">➜</div><div class="b"><b>Out</b><br>'+esc(s.o)+'</div></div><span class="small">'+esc(s.d)+'</span></span></span></button>';
+  });
+  h+='</div><p class="small mute" style="margin-top:12px">'+CONCEPT_NOTE+'</p>';
+  h+='<div class="card"><b>Try next:</b> <button class="btn" data-go="demo">▶ Watch a robot task</button> <button class="btn" data-go="models">Browse the models</button></div>';
+  return h;
+}
+function modelCard(m){
+  var sel=S.cmp.indexOf(m.id)>-1;
+  return '<article class="card mc" id="m-'+m.id+'"><h3>'+esc(m.name)+'</h3><div class="org">'+esc(m.org)+' · '+esc(m.date)+'</div><div>'+tagsHtml(m.tags)+'</div>'+
+  '<div class="flow"><div><b>① Goes in</b>'+esc(m.inp)+'</div><div><b>② What it understands</b>'+esc(m.und)+'</div><div><b>③ Comes out</b>'+esc(m.out)+'</div></div>'+
+  '<p class="small">'+esc(m.note)+'</p><div class="src">'+srcHtml(m.src)+'</div>'+
+  (S.cmpMode?'<div style="margin-top:10px"><button class="chip" data-cmp="'+m.id+'" aria-pressed="'+sel+'">'+(sel?'✓ In comparison':'+ Compare')+'</button></div>':'')+'</article>';
+}
+function filteredModels(){
+  var q=S.q.toLowerCase();
+  return MODELS.filter(function(m){
+    if(S.tag&&m.tags.indexOf(S.tag)<0)return false;
+    if(!q)return true;
+    return (m.name+" "+m.org+" "+m.inp+" "+m.und+" "+m.out+" "+m.note+" "+m.tags.join(" ")).toLowerCase().indexOf(q)>-1;
+  });
+}
+function vModels(){
+  var h='<h2>Model database</h2><p class="lead">Seven models and families. Filter by type, search, or switch on compare mode.</p>'+
+  '<div class="row"><input id="mq" type="search" placeholder="Filter models…" value="'+esc(S.q)+'" aria-label="Filter models" style="flex:1;min-width:160px"></div><div class="row">'+
+  '<button class="chip" data-tag="" aria-pressed="'+(S.tag==="")+'">All</button>'+
+  Object.keys(TAGS).map(function(t){return '<button class="chip" data-tag="'+t+'" aria-pressed="'+(S.tag===t)+'" title="'+esc(TAGS[t])+'">'+t+'</button>'}).join("")+
+  '<span style="flex:1"></span><button class="chip" id="cmpToggle" aria-pressed="'+S.cmpMode+'">⚖ Compare mode</button></div>';
+  if(S.cmpMode)h+=cmpTable();
+  h+='<div class="grid" id="mgrid">'+filteredModels().map(modelCard).join("")+'</div>';
+  return h;
+}
+function cmpTable(){
+  if(S.cmp.length<2)return '<div class="card small mute">Pick two or three models below to compare them side by side. ('+S.cmp.length+' selected)</div>';
+  var ms=S.cmp.map(modelById);
+  var rows=[["Maker",function(m){return m.org}],["Date",function(m){return m.date}],["Type",function(m){return tagsHtml(m.tags)}],["Goes in",function(m){return esc(m.inp)}],["Understands",function(m){return esc(m.und)}],["Comes out",function(m){return esc(m.out)}]];
+  var h='<div class="tablewrap" style="margin-bottom:12px"><table><thead><tr><th></th>'+ms.map(function(m){return '<th>'+esc(m.name)+'</th>'}).join("")+'</tr></thead><tbody>';
+  rows.forEach(function(r){h+='<tr><td>'+r[0]+'</td>'+ms.map(function(m){return '<td>'+(r[0]==="Type"?r[1](m):(r[0]==="Maker"||r[0]==="Date"?esc(r[1](m)):r[1](m)))+'</td>'}).join("")+'</tr>'});
+  return h+'</tbody></table></div>';
+}
+
+/* --- demo --- */
+var OBJS={
+  cup:{label:"red cup",x:80,y:150,w:34,h:34,c:"#ef4444",shape:"c",words:["cup","mug"]},
+  bottle:{label:"blue bottle",x:150,y:235,w:22,h:50,c:"#3b82f6",shape:"r",words:["bottle"]},
+  block:{label:"green block",x:300,y:80,w:38,h:38,c:"#22c55e",shape:"r",words:["block","cube"]},
+  laptop:{label:"laptop",x:300,y:200,w:90,h:62,c:"#94a3b8",shape:"r",words:["laptop","computer"]},
+  book:{label:"book",x:70,y:62,w:50,h:36,c:"#f59e0b",shape:"r",words:["book"]}
+};
+var DEMO_HOME={};
+function parseInstruction(txt){
+  var t=" "+txt.toLowerCase()+" ";
+  var found=[];
+  Object.keys(OBJS).forEach(function(k){OBJS[k].words.forEach(function(w){var i=t.indexOf(w);if(i>-1)found.push({k:k,i:i})})});
+  found.sort(function(a,b){return a.i-b.i});
+  var uniq=[];found.forEach(function(f){if(!uniq.some(function(u){return u.k===f.k}))uniq.push(f)});
+  var verb=/push|slide|nudge/.test(t)?"push":/pick|put|place|move|bring|set/.test(t)?"place":"";
+  var rel=/beside|next to|near|by /.test(t)?"beside":/ on /.test(t)?"on":/ in front/.test(t)?"front":"beside";
+  if(!verb)return {err:"I don't see an action verb. Try “pick up…”, “put…” or “push…”."};
+  if(uniq.length<2)return {err:"Name two things from the table: "+Object.keys(OBJS).map(function(k){return OBJS[k].label}).join(", ")+"."};
+  if(uniq[0].k===uniq[1].k)return {err:"Pick two different objects."};
+  return {verb:verb,obj:uniq[0].k,dest:uniq[1].k,rel:rel};
+}
+function destPoint(p){
+  var d=OBJS[p.dest],o=OBJS[p.obj];
+  if(p.rel==="on")return {x:d.x,y:d.y-d.h/2-o.h/2+4};
+  if(p.rel==="front")return {x:d.x,y:Math.min(d.y+d.h/2+o.h/2+14,285)};
+  var side=d.x>200?-1:1; // put on the roomier side
+  return {x:d.x+side*(d.w/2+o.w/2+16),y:d.y};
+}
+function sceneSvg(){
+  var s='<svg class="scene" id="scene" viewBox="0 0 400 300" role="img" aria-label="Top-down view of a table with a red cup, blue bottle, green block, laptop and book">'+
+  '<rect x="6" y="6" width="388" height="288" rx="14" fill="none" stroke="var(--line)" stroke-dasharray="4 5"/><text x="14" y="22" font-size="10" fill="var(--mute)">top-down view of the table</text>';
+  s+='<g id="ghost" opacity="0"></g>';
+  Object.keys(OBJS).forEach(function(k){
+    var o=OBJS[k];
+    var shape=o.shape==="c"?'<circle r="'+(o.w/2)+'" fill="'+o.c+'"/>':'<rect x="'+(-o.w/2)+'" y="'+(-o.h/2)+'" width="'+o.w+'" height="'+o.h+'" rx="5" fill="'+o.c+'"/>';
+    s+='<g class="obj" id="o-'+k+'" style="transform:translate('+o.x+'px,'+o.y+'px)">'+shape+'<text y="'+(o.h/2+12)+'" text-anchor="middle" font-size="9.5" fill="var(--text)">'+o.label+'</text></g>';
+  });
+  s+='<g class="obj" id="gripper" style="transform:translate(200px,280px)"><circle r="9" fill="none" stroke="var(--acc)" stroke-width="3"/><path d="M-14 -4 L-9 0 M14 -4 L9 0" stroke="var(--acc)" stroke-width="3" stroke-linecap="round"/></g></svg>';
+  return s;
+}
+function vDemo(){
+  var h='<h2>Watch the AI think about a robot task</h2><p class="lead">Type an instruction (or tap an example) and run the pipeline. Switch modes to see what a world model adds.</p>'+
+  '<div class="row"><input id="instr" type="text" value="Pick up the red cup and put it beside the laptop." aria-label="Robot instruction" style="flex:1;min-width:200px"><button class="btn" id="runBtn">▶ Run</button></div>'+
+  '<div class="row"><button class="chip" data-ex="Pick up the red cup and put it beside the laptop.">cup → laptop</button><button class="chip" data-ex="Put the green block on the book.">block → book</button><button class="chip" data-ex="Push the blue bottle next to the red cup.">push bottle</button><button class="chip" data-ex="Move the book in front of the laptop.">book → laptop</button></div>'+
+  '<div class="row"><span class="small mute">Mode:</span><span class="seg"><button data-mode="vla" aria-pressed="'+(S.demoMode==="vla")+'">VLA only</button><button data-mode="wm" aria-pressed="'+(S.demoMode==="wm")+'">VLA + world model</button></span></div>'+
+  '<div class="stage" id="stage">'+
+  [["👁️","Camera"],["🧠","Understand"],["🌎","Predict future"],["🗺️","Plan"],["🤖","Act"]].map(function(p,i){return '<div class="pill" data-s="'+i+'"><span class="e">'+p[0]+'</span>'+p[1]+'</div>'}).join("")+'</div>'+
+  '<div class="caption" id="cap" aria-live="polite">Press Run to start.</div><div style="height:10px"></div>'+sceneSvg()+
+  '<p class="small mute">This is a teaching animation, not a real model: your sentence is parsed with simple keyword rules. The stages mirror how systems like VLAs and world models are described publicly. '+CONCEPT_NOTE+'</p>';
+  return h;
+}
+function setObj(id,x,y){var el=document.getElementById(id);if(el)el.style.transform="translate("+x+"px,"+y+"px)"}
+function clearDemo(){S.demoTimer.forEach(clearTimeout);S.demoTimer=[]}
+function later(fn,ms){S.demoTimer.push(setTimeout(fn,ms))}
+function resetScene(){
+  Object.keys(OBJS).forEach(function(k){setObj("o-"+k,OBJS[k].x,OBJS[k].y)});
+  setObj("gripper",200,280);
+  var g=document.getElementById("ghost");if(g){g.innerHTML="";g.setAttribute("opacity","0")}
+}
+function runDemo(){
+  clearDemo();resetScene();
+  var cap=$("#cap"),pills=$$(".pill");
+  pills.forEach(function(p){p.className="pill"});
+  var p=parseInstruction($("#instr").value);
+  if(p.err){cap.textContent="⚠ "+p.err;return}
+  var useWM=S.demoMode==="wm";
+  var o=OBJS[p.obj],d=OBJS[p.dest],dp=destPoint(p);
+  var mark=function(i,txt,ms){later(function(){pills.forEach(function(q,j){q.classList.remove("on");if(j<i&&!q.classList.contains("skip"))q.classList.add("done")});pills[i].classList.add("on");cap.textContent=txt},ms)};
+  if(!useWM)pills[2].classList.add("skip");
+  var t=0;
+  mark(0,"👁️ Camera: the robot receives an image of the table and your sentence.",t);t+=1500;
+  mark(1,"🧠 Understand: “"+o.label+"” is the thing to move; “"+d.label+"” is the reference. Action: "+(p.verb==="push"?"push it along the table":"grasp, lift, set down")+" "+(p.rel==="on"?"on top of":p.rel==="front"?"in front of":"beside")+" the "+d.label+".",t);t+=2000;
+  if(useWM){
+    mark(2,"🌎 Predict: the world model imagines the end state — the "+o.label+" ends up here (dashed). It also checks the path for collisions before moving.",t);
+    later(function(){var g=document.getElementById("ghost");g.setAttribute("opacity","0.9");
+      g.innerHTML='<circle cx="'+dp.x+'" cy="'+dp.y+'" r="'+Math.max(o.w,o.h)/2+'" fill="none" stroke="var(--wm)" stroke-width="2.5" stroke-dasharray="5 4"/><line x1="'+o.x+'" y1="'+o.y+'" x2="'+dp.x+'" y2="'+dp.y+'" stroke="var(--wm)" stroke-dasharray="3 5" stroke-width="1.5"/>'},t+300);
+    t+=2200;
+  }else{
+    later(function(){pills[2].classList.add("skip")},t);
+  }
+  mark(3,"🗺️ Plan: "+(p.verb==="push"?"move the gripper behind the "+o.label+", then push toward the target.":"1) reach the "+o.label+"  2) close gripper  3) lift  4) carry  5) place  6) open gripper.")+(useWM?" Plan was checked against the imagined future.":" (Without a world model, the policy commits directly from what it sees.)"),t);t+=2000;
+  mark(4,"🤖 Act: sending motor commands…",t);
+  var gp=p.verb==="push"?{x:o.x-(dp.x>o.x?1:-1)*(o.w/2+14),y:o.y}:{x:o.x,y:o.y};
+  later(function(){setObj("gripper",gp.x,gp.y)},t+100);
+  later(function(){setObj("gripper",dp.x,dp.y);setObj("o-"+p.obj,dp.x,dp.y)},t+1300);
+  later(function(){cap.textContent="✅ Done. The "+o.label+" is now "+(p.rel==="on"?"on the "+d.label:p.rel==="front"?"in front of the "+d.label:"beside the "+d.label)+". In a real system, a camera check would close the loop and the robot could learn from the result.";pills.forEach(function(q){if(!q.classList.contains("skip"))q.classList.add("done");q.classList.remove("on")})},t+2600);
+}
+
+function vTerms(){
+  var h='<h2>VLA vs World Model vs Physical AI</h2><p class="lead">Tap a column to highlight it. They answer different questions.</p><div class="row">'+
+  TERMS.cols.map(function(c,i){return '<button class="chip" data-col="'+i+'" aria-pressed="false">'+esc(c)+'</button>'}).join("")+'</div>'+
+  '<div class="tablewrap"><table id="tt"><thead><tr><th></th>'+TERMS.cols.map(function(c){return '<th>'+esc(c)+'</th>'}).join("")+'</tr></thead><tbody>'+
+  TERMS.rows.map(function(r){return '<tr><td>'+esc(r[0])+'</td>'+r.slice(1).map(function(c){return '<td>'+esc(c)+'</td>'}).join("")+'</tr>'}).join("")+'</tbody></table></div>'+
+  '<div class="card" style="margin-top:12px"><b>Rule of thumb:</b> a VLA <i>acts</i>, a world model <i>imagines</i>, Physical AI is the <i>whole robot loop</i>. '+esc(TERMS.note)+' <span class="mute small">(See Cosmos 3 in Sources.)</span></div>'+
+  '<p class="small mute">'+CONCEPT_NOTE+'</p>';
+  return h;
+}
+function vWorld(){
+  return '<h2>Where Physical AI shows up</h2><p class="lead">Six domains. Each card says what the AI does and what is still hard.</p><div class="grid">'+
+  EXAMPLES.map(function(x){return '<div class="card"><div style="font-size:30px">'+x.e+'</div><h3 style="margin:4px 0">'+esc(x.t)+'</h3><p class="small">'+esc(x.d)+'</p><p class="small"><b>Still hard:</b> '+esc(x.hard)+'</p><p class="small mute">'+esc(x.ex)+'</p></div>'}).join("")+
+  '</div><p class="small mute">Domain descriptions are general explainers; the named examples come from the sources listed under Models.</p>';
+}
+function vWho(){
+  var q=S.whoQ.toLowerCase();
+  var list=COMPANIES.filter(function(c){return !q||(c.n+" "+c.f).toLowerCase().indexOf(q)>-1});
+  return '<h2>Who is building what?</h2><p class="lead">A snapshot, not a ranking. Many more companies exist.</p><div class="row"><input id="wq" type="search" placeholder="Filter companies…" value="'+esc(S.whoQ)+'" aria-label="Filter companies" style="flex:1"></div>'+
+  '<div class="tablewrap"><table><thead><tr><th>Company</th><th>Focus</th><th>Models here</th></tr></thead><tbody>'+
+  list.map(function(c){return '<tr><td style="color:var(--text);font-size:14px;text-transform:none;letter-spacing:0;width:auto"><b>'+esc(c.n)+'</b></td><td>'+esc(c.f)+'</td><td>'+(c.m.length?c.m.map(function(id){return '<a href="#" data-model="'+id+'">'+esc(modelById(id).name.split(" (")[0])+'</a>'}).join(", "):'<span class="mute">—</span>')+'</td></tr>'}).join("")+'</tbody></table></div>'+
+  (list.length?'':'<p class="mute">No matches.</p>')+
+  '<p class="small mute">Corrected from the outline: Rho-alpha is Microsoft Research’s model, not Reka’s.</p>';
+}
+function vTime(){
+  return '<h2>Physical AI timeline</h2><p class="lead">Tap a milestone to open its model card.</p><div class="tl">'+
+  TIMELINE.map(function(t){return '<div class="it"><div class="d">'+esc(t[0])+'</div><a href="#" data-model="'+t[2]+'">'+esc(t[1])+'</a></div>'}).join("")+'</div>'+
+  '<p class="small mute">Dates from the cited pages; the Mar 2025 Gemini Robotics date comes from a secondary summary.</p>';
+}
+function vSources(){
+  var h='<h2>Sources</h2><p class="lead">Every model claim links to where it came from. “Checked Oct 2026” means I fetched it while building this page; “paper · not re-fetched” means it rests on the original paper and background knowledge.</p>';
+  MODELS.forEach(function(m){h+='<div class="card"><b>'+esc(m.name)+'</b><div class="src" style="margin-top:6px">'+srcHtml(m.src)+'</div></div>'});
+  h+='<div class="card"><b>Cross-cutting</b><div class="src" style="margin-top:6px">'+srcHtml([["Cosmos 3 coalition and developers (Datanorth)","https://datanorth.ai/news/nvidia-launches-cosmos-3",1],["Cosmos at CES 2026 (Cosmos Reason 2)","https://mer.vin/2026/01/highlights-from-nvidias-cosmos-announcement-at-ces-2026",1],["Gemini Robotics-ER 1.6 (Seeking Alpha)","https://seekingalpha.com/news/4574852-googles-deepmind-launches-more-advanced-gemini-robotics",1]])+'</div></div>';
+  h+='<div class="card small mute">Not independently verified here: Figure and Tesla descriptions (background knowledge). Conceptual definitions (the ladder, comparison table, domain cards) are explanatory framing.</div>';
+  return h;
+}
+function vSearch(){
+  var q=S.gq.toLowerCase();
+  var ms=MODELS.filter(function(m){return (m.name+" "+m.org+" "+m.inp+" "+m.und+" "+m.out+" "+m.note+" "+m.tags.join(" ")).toLowerCase().indexOf(q)>-1});
+  var cs=COMPANIES.filter(function(c){return (c.n+" "+c.f).toLowerCase().indexOf(q)>-1});
+  var es=EXAMPLES.filter(function(x){return (x.t+" "+x.d+" "+x.ex).toLowerCase().indexOf(q)>-1});
+  var ls=LADDER.filter(function(x){return (x.t+" "+x.d).toLowerCase().indexOf(q)>-1});
+  var h='<h2>Search: “'+esc(S.gq)+'”</h2>';
+  if(!(ms.length+cs.length+es.length+ls.length))return h+'<p class="mute">Nothing found. Try “world model”, “humanoid”, “open”, or a company name.</p>';
+  if(ms.length)h+='<h3>Models</h3><div class="grid">'+ms.map(modelCard).join("")+'</div>';
+  if(cs.length)h+='<h3>Companies</h3>'+cs.map(function(c){return '<div class="card"><b>'+esc(c.n)+'</b><br><span class="small">'+esc(c.f)+'</span></div>'}).join("");
+  if(es.length)h+='<h3>Real-world</h3>'+es.map(function(x){return '<div class="card">'+x.e+' <b>'+esc(x.t)+'</b><br><span class="small">'+esc(x.d)+'</span></div>'}).join("");
+  if(ls.length)h+='<h3>Concepts</h3>'+ls.map(function(x){return '<div class="card">'+x.e+' <b>'+esc(x.t)+'</b><br><span class="small">'+esc(x.d)+'</span></div>'}).join("");
+  return h;
+}
+
+/* ============ ROUTER / EVENTS ============ */
+var RENDER={learn:vLearn,models:vModels,demo:vDemo,terms:vTerms,world:vWorld,who:vWho,time:vTime,sources:vSources,search:vSearch};
+function buildNav(){
+  $("#nav").innerHTML=VIEWS.filter(function(v){return v[0]!=="search"||S.view==="search"}).map(function(v){return '<button role="tab" data-v="'+v[0]+'" aria-selected="'+(S.view===v[0])+'">'+v[1]+'</button>'}).join("");
+}
+function go(v,keepScroll){
+  clearDemo();
+  S.view=v;buildNav();
+  $("#view").innerHTML=RENDER[v]();
+  if(!keepScroll)window.scrollTo(0,0);
+}
+function openModel(id){
+  S.tag="";S.q="";go("models");
+  var el=document.getElementById("m-"+id);
+  if(el){el.scrollIntoView({block:"center",behavior:"smooth"});el.style.outline="2px solid var(--acc)";setTimeout(function(){el.style.outline=""},1800)}
+}
+document.addEventListener("click",function(e){
+  var t=e.target.closest("button,a");if(!t)return;
+  if(t.dataset.v){go(t.dataset.v);return}
+  if(t.dataset.go){go(t.dataset.go);return}
+  if(t.dataset.model){e.preventDefault();openModel(t.dataset.model);return}
+  if(t.classList.contains("step")){var o=t.getAttribute("aria-expanded")==="true";t.setAttribute("aria-expanded",String(!o));return}
+  if(t.hasAttribute("data-tag")){S.tag=t.dataset.tag;go("models",true);return}
+  if(t.id==="cmpToggle"){S.cmpMode=!S.cmpMode;if(!S.cmpMode)S.cmp=[];go("models",true);return}
+  if(t.dataset.cmp){var id=t.dataset.cmp,i=S.cmp.indexOf(id);if(i>-1)S.cmp.splice(i,1);else if(S.cmp.length<3)S.cmp.push(id);else{alert("Compare up to 3 models at a time.");return}var y=window.scrollY;go("models",true);window.scrollTo(0,y);return}
+  if(t.id==="runBtn"){runDemo();return}
+  if(t.dataset.ex){$("#instr").value=t.dataset.ex;runDemo();return}
+  if(t.dataset.mode){S.demoMode=t.dataset.mode;$$(".seg button").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.mode===S.demoMode))});return}
+  if(t.dataset.col!==undefined){
+    var on=t.getAttribute("aria-pressed")!=="true";
+    $$("[data-col]").forEach(function(b){b.setAttribute("aria-pressed","false")});
+    $$("#tt .hl").forEach(function(c){c.classList.remove("hl")});
+    if(on){t.setAttribute("aria-pressed","true");var ci=+t.dataset.col+2;$$("#tt tr").forEach(function(r){var c=r.children[ci-1];if(c)c.classList.add("hl")})}
+    return}
+  if(t.id==="themeBtn"){var r=document.documentElement;var cur=r.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:light)").matches?"light":"dark");var nx=cur==="light"?"dark":"light";r.setAttribute("data-theme",nx);tryStore("pai-theme",nx);return}
+  if(t.id==="installBtn"&&window._dip){window._dip.prompt();window._dip=null;t.classList.add("hidden")}
+});
+document.addEventListener("input",function(e){
+  var t=e.target;
+  if(t.id==="mq"){S.q=t.value;var g=$("#mgrid");if(g)g.innerHTML=filteredModels().map(modelCard).join("")||'<p class="mute">No models match.</p>'}
+  if(t.id==="wq"){S.whoQ=t.value;var pos=t.selectionStart;go("who",true);var n=$("#wq");n.focus();try{n.setSelectionRange(pos,pos)}catch(x){}}
+  if(t.id==="gsearch"){
+    var v=t.value.trim();
+    if(v){S.gq=v;S.view="search";buildNav();$("#view").innerHTML=vSearch()}
+    else if(S.view==="search"){go("learn")}
+  }
+});
+document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="instr")runDemo()});
+
+/* ============ PWA ============ */
+(function(){
+  var th=tryStore("pai-theme");if(th)document.documentElement.setAttribute("data-theme",th);
+  try{
+    var icon="data:image/svg+xml,"+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='96' fill='#0b1020'/><text x='256' y='355' font-size='300' text-anchor='middle' fill='#7dd3fc' font-family='serif'>π</text></svg>");
+    var base=location.href.split("#")[0];
+    var man={name:"From Chatbots to Physical AI",short_name:"Physical AI",start_url:base,scope:base.replace(/[^\/]*$/,""),display:"standalone",background_color:"#0b1020",theme_color:"#0b1020",icons:[{src:icon,sizes:"any",type:"image/svg+xml",purpose:"any"}]};
+    var l=document.createElement("link");l.rel="manifest";l.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/manifest+json"}));document.head.appendChild(l);
+  }catch(e){}
+  if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){
+    window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
+  }
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window._dip=e;$("#installBtn").classList.remove("hidden")});
+})();
+
+go("learn");
+</script>
+</body>
+</html>
