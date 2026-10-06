@@ -26,6 +26,8 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px s
 h1{font-size:15px;margin:0;line-height:1.2;flex:1}
 h1 small{display:block;color:var(--mute);font-weight:400;font-size:12px}
 .search{flex:1.2;min-width:0}
+.iconbtn{flex:none;width:42px;height:42px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer}
+.iconbtn:hover{border-color:var(--acc)}
 input[type=search],input[type=text]{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 12px;font:inherit;font-size:15px}
 input:focus{outline:2px solid var(--acc);outline-offset:1px}
 nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:8px -16px 0;padding:0 16px}
@@ -103,6 +105,7 @@ footer{border-top:1px solid var(--line);padding:18px 16px 28px;text-align:center
     <div class="logo" aria-hidden="true">π</div>
     <h1>From Chatbots to Physical AI<small>Interactive explainer · works offline</small></h1>
     <div class="search"><input id="gsearch" type="search" placeholder="Search models, companies…" aria-label="Search everything"></div>
+    <button class="iconbtn themeToggle" id="hThemeBtn" aria-label="Switch between dark and light mode" title="Dark / light mode"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
   </div>
   <nav id="nav" role="tablist" aria-label="Sections"></nav>
 </header>
@@ -111,7 +114,7 @@ footer{border-top:1px solid var(--line);padding:18px 16px 28px;text-align:center
 
 <footer>
   <div>Designed &amp; Architected by Krishnamurthy Kandregula · Made by Claude</div>
-  <div style="margin-top:6px">Facts checked against public sources in October 2026. This field moves fast — verify before you rely on a detail. <button class="btn" id="themeBtn" style="margin-left:6px;padding:3px 10px;font-size:12px">Toggle theme</button> <button class="btn hidden" id="installBtn" style="padding:3px 10px;font-size:12px">Install app</button></div>
+  <div style="margin-top:6px">Facts checked against public sources in October 2026. This field moves fast — verify before you rely on a detail. <button class="btn themeToggle" id="themeBtn" style="margin-left:6px;padding:3px 10px;font-size:12px">Toggle theme</button> <button class="btn hidden" id="installBtn" style="padding:3px 10px;font-size:12px">Install app</button></div>
 </footer>
 
 <script>
@@ -462,7 +465,7 @@ document.addEventListener("click",function(e){
     $$("#tt .hl").forEach(function(c){c.classList.remove("hl")});
     if(on){t.setAttribute("aria-pressed","true");var ci=+t.dataset.col+2;$$("#tt tr").forEach(function(r){var c=r.children[ci-1];if(c)c.classList.add("hl")})}
     return}
-  if(t.id==="themeBtn"){var r=document.documentElement;var cur=r.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:light)").matches?"light":"dark");var nx=cur==="light"?"dark":"light";r.setAttribute("data-theme",nx);tryStore("pai-theme",nx);return}
+  if(t.classList.contains("themeToggle")){var r=document.documentElement;var cur=r.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:light)").matches?"light":"dark");var nx=cur==="light"?"dark":"light";r.setAttribute("data-theme",nx);tryStore("pai-theme",nx);return}
   if(t.id==="installBtn"&&window._dip){window._dip.prompt();window._dip=null;t.classList.add("hidden")}
 });
 document.addEventListener("input",function(e){
@@ -479,7 +482,7 @@ document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id=
 
 /* ============ PWA ============ */
 (function(){
-  var th=tryStore("pai-theme");if(th)document.documentElement.setAttribute("data-theme",th);
+  var th=tryStore("pai-theme");document.documentElement.setAttribute("data-theme",th||"dark");
   try{
     var icon="data:image/svg+xml,"+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='96' fill='#0b1020'/><text x='256' y='355' font-size='300' text-anchor='middle' fill='#7dd3fc' font-family='serif'>π</text></svg>");
     var base=location.href.split("#")[0];
