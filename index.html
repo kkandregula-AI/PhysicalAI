@@ -130,6 +130,12 @@ var LADDER = [
 
 /* src: [title,url,verified?]  verified = fetched in a search for this build (Oct 2026) */
 var MODELS = [
+ {id:"rho-1",name:"Rho-1",org:"Reka",date:"5 Oct 2026",tags:["Omni","WM","VLA"],
+  inp:"Text, image latents, video frames, robot actions and proprioception (the robot's own joint state), all as native inputs",
+  und:"A 19B-parameter omni-reasoning model trained from scratch, with an understanding stream and a generation stream sharing attention and one memory (KV cache). Robot actions decode from the same internal state as predicted future video frames, so it can ‘imagine’ the next scene before moving.",
+  out:"Text, images, video and robot joint trajectories — and generated output can feed straight back in as context",
+  note:"Research preview; public weights not released. Reka reports the base model generates video at about 0.79× real time and a distilled 8-step version can render some clips in roughly a second. It pairs the model with an inverse dynamics model that infers control signals from raw video, so web video can serve as training data. Reka lists limits: drift in long rollouts, weak temporal grounding, brittle video editing, and 672×384 native resolution, attributed to modest training compute (320 H100s for three months). Not the same as Microsoft’s Rho-alpha.",
+  src:[["Reka — Rho-1: Collapsing the multimodal stack","https://reka.ai/news/rho-1-collapsing-the-multimodal-stack",1],["MarkTechPost — Reka Releases Rho-1","https://www.marktechpost.com/2026/10/05/reka-releases-rho-1-a-19b-omni-reasoning-model-that-understands-generates-video-and-outputs-robot-actions-in-one/",1]]},
  {id:"rho-alpha",name:"Rho-alpha (ρα)",org:"Microsoft Research",date:"Jan 2026",tags:["VLA"],
   inp:"Camera views + natural-language command + touch (tactile) signals",
   und:"Reasons with a Phi-family vision-language backbone, then fuses touch with vision so it can react while the hand is already moving.",
@@ -177,6 +183,7 @@ var MODELS = [
 var COMPANIES = [
  {n:"Google DeepMind",f:"Gemini Robotics (VLA + embodied reasoning), Genie world models",m:["gemini-robotics","rt2","genie3"]},
  {n:"NVIDIA",f:"Cosmos open world foundation models; Isaac Sim / Omniverse simulation",m:["cosmos"]},
+ {n:"Reka",f:"Rho-1 — 19B omni-reasoning model that understands, generates video and outputs robot actions",m:["rho-1"]},
  {n:"Microsoft Research",f:"Rho-alpha, a Phi-derived VLA+ with touch; uses NVIDIA Isaac Sim data",m:["rho-alpha"]},
  {n:"Physical Intelligence",f:"π0 family — generalist robot foundation models",m:["pi0"]},
  {n:"Stanford / Berkeley / TRI",f:"OpenVLA — open-weights VLA research",m:["openvla"]},
@@ -205,7 +212,8 @@ var TIMELINE = [
  ["Jan 2026","Microsoft unveils Rho-alpha (VLA+ with touch); NVIDIA adds Cosmos Reason 2 at CES.","rho-alpha"],
  ["Apr 2026","π0.7 ‘steerable’ model; Gemini Robotics-ER 1.6 reaches developers.","pi0"],
  ["Jun 2026","NVIDIA launches Cosmos 3, an open omnimodel merging reasoning, world simulation and action.","cosmos"],
- ["30 Jul 2026","Gemini Robotics 2: whole-body humanoid control, ER 2, On-Device 2.","gemini-robotics"]
+ ["30 Jul 2026","Gemini Robotics 2: whole-body humanoid control, ER 2, On-Device 2.","gemini-robotics"],
+ ["5 Oct 2026","Reka previews Rho-1: one 19B model that reads, generates video and outputs robot actions.","rho-1"]
 ];
 
 var TERMS = {
@@ -218,7 +226,7 @@ var TERMS = {
   ["Examples","RT-2, OpenVLA, π0, Gemini Robotics 2","Genie 3, Cosmos world models","A humanoid or car running several models"],
   ["Weak spot","Can act without ‘imagining’ consequences","Physics is learned, so can be approximate","Hardware, safety and data are bottlenecks"]
  ],
- note:"These categories are blurring: Cosmos 3 is described as one system that can reason, simulate and predict actions."
+ note:"These categories are blurring: Cosmos 3 and Reka’s Rho-1 are each described as one system that can reason, simulate (generate video) and output actions."
 };
 
 var CONCEPT_NOTE="Conceptual framing — the author's explainer, not a claim from one source.";
@@ -263,7 +271,7 @@ function filteredModels(){
   });
 }
 function vModels(){
-  var h='<h2>Model database</h2><p class="lead">Seven models and families. Filter by type, search, or switch on compare mode.</p>'+
+  var h='<h2>Model database</h2><p class="lead">Eight models and families. Filter by type, search, or switch on compare mode.</p>'+
   '<div class="row"><input id="mq" type="search" placeholder="Filter models…" value="'+esc(S.q)+'" aria-label="Filter models" style="flex:1;min-width:160px"></div><div class="row">'+
   '<button class="chip" data-tag="" aria-pressed="'+(S.tag==="")+'">All</button>'+
   Object.keys(TAGS).map(function(t){return '<button class="chip" data-tag="'+t+'" aria-pressed="'+(S.tag===t)+'" title="'+esc(TAGS[t])+'">'+t+'</button>'}).join("")+
@@ -391,7 +399,7 @@ function vWho(){
   '<div class="tablewrap"><table><thead><tr><th>Company</th><th>Focus</th><th>Models here</th></tr></thead><tbody>'+
   list.map(function(c){return '<tr><td style="color:var(--text);font-size:14px;text-transform:none;letter-spacing:0;width:auto"><b>'+esc(c.n)+'</b></td><td>'+esc(c.f)+'</td><td>'+(c.m.length?c.m.map(function(id){return '<a href="#" data-model="'+id+'">'+esc(modelById(id).name.split(" (")[0])+'</a>'}).join(", "):'<span class="mute">—</span>')+'</td></tr>'}).join("")+'</tbody></table></div>'+
   (list.length?'':'<p class="mute">No matches.</p>')+
-  '<p class="small mute">Corrected from the outline: Rho-alpha is Microsoft Research’s model, not Reka’s.</p>';
+  '<p class="small mute">Don’t mix them up: Reka’s Rho-1 (omni, Oct 2026) and Microsoft’s Rho-alpha (VLA+ with touch, Jan 2026) are different models.</p>';
 }
 function vTime(){
   return '<h2>Physical AI timeline</h2><p class="lead">Tap a milestone to open its model card.</p><div class="tl">'+

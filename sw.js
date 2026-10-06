@@ -1,5 +1,5 @@
 /* Offline cache for the Physical AI Explainer. Bump CACHE when index.html changes. */
-var CACHE = "physical-ai-v1";
+var CACHE = "physical-ai-v2";
 var ASSETS = ["./", "./index.html"];
 
 self.addEventListener("install", function (e) {
